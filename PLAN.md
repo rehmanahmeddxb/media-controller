@@ -2,7 +2,7 @@
 
 **One file. This is the whole app plan.** Product spec + architecture + technology lock + the complete task list with progress tracking.
 **Targets:** Windows PC (first-class) + Android/Termux (first-class). **v1 = 100 % local, zero cloud.**
-**Language rule:** all browser/application code is **TypeScript**. Plain JavaScript source files are not used.
+**Language rule:** Python 3.11+ (FastAPI) backend + Vanilla Modern JavaScript (ES Modules) frontend. **Zero Node.js/npm dependencies — 100% build-free runtime.**
 
 ---
 
@@ -38,14 +38,14 @@
 
 **Quick start**
 
-- Windows: `scripts\start_windows.bat` → venv + pip install + TypeScript build + uvicorn + open browser.
-- Android/Termux: `bash scripts/start_termux.sh` → pkg install + venv + pip install + TypeScript build + uvicorn + print LAN URL.
+- Windows: `scripts\start_windows.bat` → venv + pip install + uvicorn + open browser (zero npm).
+- Android/Termux: `bash scripts/start_termux.sh` → pkg install python ffmpeg + venv + pip install + uvicorn + print LAN URL (zero npm/Node.js).
 - Health/capability check: `python3 scripts/diagnostics.py`.
 
 ---
 
 <!-- PROGRESS:START -->
-### Overall: **0 / 452** tasks complete (**0.0%**)
+### Overall: **0 / 450** tasks complete (**0.0%**)
 
 `[░░░░░░░░░░░░░░░░░░░░]`
 
@@ -62,14 +62,14 @@
 | Phase 8 — Final Renderer (FFmpeg, authoritative) | 0 | 37 | 0% | `░░░░░░░░░░░░░░░░░░░░` |
 | Phase 9 — Export Jobs, Progress & Cancellation | 0 | 37 | 0% | `░░░░░░░░░░░░░░░░░░░░` |
 | Phase 10 — Hardening, Testing & Sign-off | 0 | 35 | 0% | `░░░░░░░░░░░░░░░░░░░░` |
-| Appendix A — File-tree build checklist | 0 | 47 | 0% | `░░░░░░░░░░░░░░░░░░░░` |
+| Appendix A — File-tree build checklist | 0 | 45 | 0% | `░░░░░░░░░░░░░░░░░░░░` |
 | Appendix B — Acceptance-criteria sign-off | 0 | 22 | 0% | `░░░░░░░░░░░░░░░░░░░░` |
 | Appendix C — Non-negotiable rules sign-off | 0 | 18 | 0% | `░░░░░░░░░░░░░░░░░░░░` |
 | Appendix E — Definition of Done (applies to every task) | 0 | 7 | 0% | `░░░░░░░░░░░░░░░░░░░░` |
 
 **Next up:** `P1-01`, `P1-02`, `P1-03`, `P1-04`, `P1-05`
 
-_Last updated: 2026-09-03 15:58_
+_Last updated: 2026-09-03 17:24_
 <!-- PROGRESS:END -->
 
 ---
@@ -105,11 +105,11 @@ It must support:
 
 ## 2. Technology decisions
 
-**Frontend — browser-native and lightweight:** HTML5, CSS3, **TypeScript**, Canvas 2D, `HTMLVideoElement`, `MediaDevices`/`getUserMedia`, `MediaRecorder`, Web Audio API, Pointer Events, `requestVideoFrameCallback()` (with `requestAnimationFrame()` fallback), File System Access API where supported, Web Workers where useful, OffscreenCanvas where supported and beneficial.
+**Frontend — browser-native, buildless, and lightweight:** HTML5, CSS3, **Vanilla Modern JavaScript (ES Modules)**, Canvas 2D, `HTMLVideoElement`, `MediaDevices`/`getUserMedia`, `MediaRecorder`, Web Audio API, Pointer Events, `requestVideoFrameCallback()` (with `requestAnimationFrame()` fallback), File System Access API where supported, Web Workers where useful, OffscreenCanvas where supported and beneficial.
 
-**Explicitly not used in v1:** React, Electron, Node.js backend, heavy UI frameworks, Django, **and plain JavaScript source files**. Every browser source file is written in TypeScript and compiled to JavaScript as build output only. The browser already provides the media primitives we need; TypeScript adds the type safety a multi-layer state machine needs.
+**Explicitly not used in v1:** React, Electron, Node.js backend, npm, TypeScript build toolchains, heavy UI frameworks, Django. All frontend code is clean, native modern JavaScript (ES Modules) served directly as static files by FastAPI without any bundling, transpilation, or npm build steps. The browser natively executes ES Modules and provides all required media primitives directly.
 
-**Backend:** Python 3.11+, FastAPI, Uvicorn, Pydantic, python-multipart. Python is the orchestration/control layer — it must **never** process every video frame itself.
+**Backend:** Python 3.11+, FastAPI, Uvicorn, Pydantic, python-multipart, aiofiles. Python is the orchestration/control layer — it must **never** process every video frame itself.
 
 **Media engine:** FFmpeg + FFprobe (authoritative). FFmpeg handles decoding, normalization, proxy generation, scaling, padding, cropping, PiP compositing, audio processing, timestamp correction, frame-rate conversion, encoding, muxing, final export and validation. FFprobe handles codec detection, resolution, FPS, duration, audio streams, pixel format, HDR info, VFR/CFR detection, bitrate and stream validation.
 
@@ -119,8 +119,8 @@ It must support:
 
 | Area | Final choice |
 |---|---|
-| Language | Python + **TypeScript** |
-| Frontend source | HTML / CSS / **TypeScript** (no plain JavaScript) |
+| Language | Python 3.11+ & **Modern JavaScript (ES Modules)** |
+| Frontend source | HTML5 / CSS3 / **Vanilla JavaScript (ES Modules, zero build/npm)** |
 | Backend | FastAPI |
 | Server | Uvicorn |
 | Live video | HTMLVideoElement |
@@ -140,8 +140,9 @@ It must support:
 | Cloud | Not required |
 | React | Not used in v1 |
 | Electron | Not used |
+| Node.js / npm | **Not used (100% buildless, Python only)** |
+| TypeScript | **Not used (replaced by native ES Modules)** |
 | Django | Not used |
-| Plain JavaScript sources | Not used |
 
 ## 3. Local-first rule
 
@@ -150,7 +151,7 @@ There is **no** PythonAnywhere dependency in v1: no cloud processing, no mandato
 ## 4. Platform support
 
 - **Windows:** Python, FastAPI/Uvicorn, FFmpeg, FFprobe, Chrome/Edge/Firefox. Started via `scripts/start_windows.bat`.
-- **Android:** Termux, Python, FastAPI/Uvicorn, FFmpeg, Android browser. Started via `scripts/start_termux.sh`. The browser handles camera permissions; Termux does not need direct camera-hardware control for the normal workflow.
+- **Android:** Termux, Python, FastAPI/Uvicorn, FFmpeg, Android browser. Started via `scripts/start_termux.sh`. Just `pkg install python ffmpeg`, install requirements via `pip`, and run. The browser handles camera permissions; Termux does not need direct camera-hardware control for the normal workflow.
 
 ## 5. Architecture
 
@@ -160,8 +161,8 @@ There is **no** PythonAnywhere dependency in v1: no cloud processing, no mandato
        +----------+----------+
        |                     |
    BROWSER UI             FASTAPI
-   (TypeScript)     Project / Jobs /
-       |            Media control
+  (Vanilla JS)      Project / Jobs /
+  [ES Modules]        Media control
        |                     |
        +----------+----------+
                   |
@@ -172,7 +173,7 @@ There is **no** PythonAnywhere dependency in v1: no cloud processing, no mandato
              Final Export
 ```
 
-The design intentionally separates: **real-time interaction → browser (TypeScript)**, **application orchestration → Python**, **heavy authoritative media processing → FFmpeg**. This is the strongest practical architecture for a lightweight local reaction studio without any cloud dependency.
+The design intentionally separates: **real-time interaction → browser (Vanilla JavaScript ES Modules)**, **application orchestration → Python**, **heavy authoritative media processing → FFmpeg**. This is the strongest practical architecture for a lightweight local reaction studio with zero npm dependencies and zero cloud dependency.
 
 ## 6. Media source model
 
@@ -421,9 +422,9 @@ AhmedReactionStudio/
 |-- web/
 |   |-- index.html
 |   |-- css/studio.css
-|   `-- src/       (app.ts, api.ts, compositor.ts, layers.ts, pip-editor.ts,
-|                   camera.ts, media.ts, audio.ts, recorder.ts,
-|                   timeline.ts, performance.ts, ui.ts)   <- TypeScript sources
+|   `-- js/        (app.js, api.js, compositor.js, layers.js, pip-editor.js,
+|                   camera.js, media.js, audio.js, recorder.js,
+|                   timeline.js, performance.js, ui.js)   <- Native ES Modules (zero npm)
 |-- scripts/       (start_windows.bat, start_termux.sh, diagnostics.py)
 |-- storage/       (projects/, proxies/, recordings/, exports/, temp/, logs/)
 |-- requirements.txt
@@ -443,7 +444,7 @@ Absolute zero-stutter/zero-latency cannot be guaranteed on every device and code
 - [ ] **GR-02** — FFmpeg/FFprobe is the authoritative final media engine; Python never decodes video frames.
 - [ ] **GR-03** — Python (FastAPI/Uvicorn) orchestrates only: projects, jobs, storage, media control.
 - [ ] **GR-04** — Browser APIs own live camera + preview (HTMLVideoElement, Canvas 2D, Web Audio, MediaRecorder).
-- [ ] **GR-05** — No React / Electron / Django / heavy UI framework in v1. All frontend code is **TypeScript** — no plain JavaScript source files; JavaScript exists only as compiled build output.
+- [ ] **GR-05** — No React / Electron / Django / heavy UI framework in v1. All frontend code is **Vanilla Modern JavaScript (ES Modules)** executed natively by the browser with zero build steps and zero Node.js/npm dependencies.
 - [ ] **GR-06** — GStreamer stays optional and pluggable; nothing in v1 depends on it.
 - [ ] **GR-07** — Original media is immutable: never modify, move, overwrite, or delete a source file.
 - [ ] **GR-08** — Every layer owns independent media state (no shared media element across independently controlled layers).
@@ -466,18 +467,18 @@ Absolute zero-stutter/zero-latency cannot be guaranteed on every device and code
 
 # Phase 1 — Foundation
 
-**Goal:** a booting local FastAPI service + static web shell + config, logging, storage, FFmpeg detection, a TypeScript build step, and both startup scripts.
+**Goal:** a booting local FastAPI service + static web shell (native ES Modules) + config, logging, storage, FFmpeg detection, and both zero-npm startup scripts.
 
 ## 1.1 Repository skeleton
 
-- [ ] **P1-01** — Create directory tree exactly as §26 (`app/api`, `app/media`, `app/workers`, `app/core`, `web/css`, `web/src`, `scripts`, `storage/*`).
+- [ ] **P1-01** — Create directory tree exactly as §26 (`app/api`, `app/media`, `app/workers`, `app/core`, `web/css`, `web/js`, `scripts`, `storage/*`).
 - [ ] **P1-02** — Add `storage/` subfolders with `.gitkeep`: `projects/`, `proxies/`, `recordings/`, `exports/`, `temp/`, `logs/`.
-- [ ] **P1-03** — Write `.gitignore` excluding `storage/**` contents (keep `.gitkeep`), `temp/`, `logs/`, `__pycache__/`, `node_modules/`, compiled JS build output (`web/dist/`, `web/js/`), `.env`.
+- [ ] **P1-03** — Write `.gitignore` excluding `storage/**` contents (keep `.gitkeep`), `temp/`, `logs/`, `__pycache__/`, `.env`.
 - [ ] **P1-04** — Write `requirements.txt`: `fastapi`, `uvicorn[standard]`, `pydantic>=2`, `python-multipart`, `aiofiles`.
 - [ ] **P1-05** — Write `config.example.json` (storage roots, ports, proxy ladder, camera caps, export defaults, log level).
 - [ ] **P1-06** — Write setup/start documentation inside this plan file (no separate README) for Windows and Termux.
 - [ ] **P1-07** — Keep this `PLAN.md` as the single unified document — spec, plan and progress in one file.
-- [ ] **P1-08** — Add TypeScript toolchain config (`tsconfig.json` strict mode, `package.json` build/watch scripts) so `web/src/**.ts` compiles to the served bundle.
+- [ ] **P1-08** — Setup modern vanilla ES module structure in `web/js/` (native browser imports, zero bundler, zero npm).
 
 ## 1.2 Core services (`app/core`)
 
@@ -498,7 +499,7 @@ Absolute zero-stutter/zero-latency cannot be guaranteed on every device and code
 ## 1.3 Server + API shell
 
 - [ ] **P1-22** — `server.py`: FastAPI app factory, lifespan startup/shutdown, bind `0.0.0.0` (Termux/LAN reachable), configurable port.
-- [ ] **P1-23** — `server.py`: mount `web/` as static files; serve `index.html` at `/` (loading the compiled TypeScript bundle).
+- [ ] **P1-23** — `server.py`: mount `web/` as static files; serve `index.html` at `/` (loading native ES modules from `web/js/app.js`).
 - [ ] **P1-24** — `server.py`: global exception handler returning structured JSON errors; request-id middleware.
 - [ ] **P1-25** — `api/health.py`: `GET /api/health` (server, uptime, versions, storage roots, disk free).
 - [ ] **P1-26** — `api/health.py`: `GET /api/system` (platform, python version, cpu/ram, ffmpeg/ffprobe paths + versions, encoders).
@@ -516,16 +517,16 @@ Absolute zero-stutter/zero-latency cannot be guaranteed on every device and code
 
 ## 1.5 Startup scripts + diagnostics
 
-- [ ] **P1-35** — `scripts/start_windows.bat`: venv create/activate, pip install, npm install + TypeScript build (`tsc`), ffmpeg check, launch uvicorn, open browser.
-- [ ] **P1-36** — `scripts/start_termux.sh`: pkg install, python venv, pip install, npm install + TypeScript build (`tsc`), ffmpeg check, launch uvicorn, print LAN URL.
+- [ ] **P1-35** — `scripts/start_windows.bat`: venv create/activate, pip install -r requirements.txt, ffmpeg check, launch uvicorn, open browser (zero npm).
+- [ ] **P1-36** — `scripts/start_termux.sh`: pkg install python ffmpeg, python venv, pip install -r requirements.txt, ffmpeg check, launch uvicorn, print LAN URL (zero npm/Node.js).
 - [ ] **P1-37** — `scripts/diagnostics.py`: one-shot capability report (ffmpeg/ffprobe, encoders, codecs, storage writable, camera hints, RAM/disk).
 - [ ] **P1-38** — First boot smoke test: server starts, `/api/health` green, static shell loads on Windows.
 - [ ] **P1-39** — First boot smoke test: server starts, `/api/health` green, static shell loads on Android/Termux.
 
 ## 1.6 Exit criteria — Phase 1
 
-- [ ] **P1-E1** — `start_windows.bat` produces a working local studio shell (Python + compiled TypeScript bundle).
-- [ ] **P1-E2** — `start_termux.sh` produces a working local studio shell (Python + compiled TypeScript bundle).
+- [ ] **P1-E1** — `start_windows.bat` produces a working local studio shell with Python-only dependencies (zero npm).
+- [ ] **P1-E2** — `start_termux.sh` produces a working local studio shell with Python-only dependencies (zero npm).
 - [ ] **P1-E3** — `/api/system` correctly reports FFmpeg/FFprobe presence or gives exact remediation.
 - [ ] **P1-E4** — Logs land in `storage/logs/` and are structured.
 
@@ -564,7 +565,7 @@ Absolute zero-stutter/zero-latency cannot be guaranteed on every device and code
 - [ ] **P2-21** — `media/proxy.py`: proxy failure → bounded retry at next lower rung.
 - [ ] **P2-22** — Originals are never replaced; proxy lives under `storage/proxies/<media_id>/`.
 
-## 2.4 Browser media handling (`web/src/media.ts`)
+## 2.4 Browser media handling (`web/js/media.js`)
 
 - [ ] **P2-23** — File picker (`<input type=file>` + File System Access API where supported).
 - [ ] **P2-24** — Object-URL creation and lifecycle management (revoke on layer removal/unload).
@@ -573,9 +574,9 @@ Absolute zero-stutter/zero-latency cannot be guaranteed on every device and code
 - [ ] **P2-27** — Proxy-vs-original selection at layer level, with manual override.
 - [ ] **P2-28** — Per-source metadata card in the UI (codec, res, fps, VFR flag, proxy badge).
 - [ ] **P2-29** — Large-file guard: warn/auto-proxy above configurable size/resolution thresholds.
-- [ ] **P2-30** — `api.ts`: typed client for all `/api/media` endpoints with timeout + retry policy.
+- [ ] **P2-30** — `api.js`: typed-structure client for all `/api/media` endpoints with timeout + retry policy.
 
-## 2.5 Playback health monitor (`web/src/performance.ts`)
+## 2.5 Playback health monitor (`web/js/performance.js`)
 
 - [ ] **P2-31** — Metrics: decoded frames, dropped frames, current FPS, target FPS, buffer state, render time, compositor time.
 - [ ] **P2-32** — `getVideoPlaybackQuality()` + `requestVideoFrameCallback()` sampling loop.
@@ -598,7 +599,7 @@ Absolute zero-stutter/zero-latency cannot be guaranteed on every device and code
 
 **Goal:** the interactive core — multi-layer canvas, z-order, independent visibility, drag/resize with 8 handles, presets.
 
-## 3.1 Canvas & render loop (`web/src/compositor.ts`)
+## 3.1 Canvas & render loop (`web/js/compositor.js`)
 
 - [ ] **P3-01** — Canvas 2D context setup with DPR-aware backing store.
 - [ ] **P3-02** — Aspect modes: `16:9` (1920×1080), `9:16` (1080×1920), `1:1` (1080×1080) — switchable at runtime.
@@ -613,7 +614,7 @@ Absolute zero-stutter/zero-latency cannot be guaranteed on every device and code
 - [ ] **P3-11** — Overlay handle rendering layer (selection outline + 8 handles) drawn above content, excluded from capture.
 - [ ] **P3-12** — OffscreenCanvas/worker evaluation; adopt only if measurably better.
 
-## 3.2 Layer model (`web/src/layers.ts`)
+## 3.2 Layer model (`web/js/layers.js`)
 
 - [ ] **P3-13** — Layer schema: `id, type, source, name, visible, locked, muted, volume, geometry{x,y,w,h}, z, state`.
 - [ ] **P3-14** — Normalized geometry (0–1) so layouts are resolution-independent.
@@ -632,7 +633,7 @@ Absolute zero-stutter/zero-latency cannot be guaranteed on every device and code
 - [ ] **P3-27** — Layer panel UI: eye / lock / mute / volume / play-pause / rename / delete / drag-reorder per row.
 - [ ] **P3-28** — Project-level "Play All / Pause All / Reset All" as an **explicit** separate control only.
 
-## 3.3 PiP editor (`web/src/pip-editor.ts`)
+## 3.3 PiP editor (`web/js/pip-editor.js`)
 
 - [ ] **P3-29** — Eight handles rendered for the selected layer: 4 corners + 4 sides.
 - [ ] **P3-30** — Pointer Events only (mouse + touch + stylus), `setPointerCapture` during drag.
@@ -655,7 +656,7 @@ Absolute zero-stutter/zero-latency cannot be guaranteed on every device and code
 - [ ] **P3-44** — Presets computed from canvas aspect so they behave on 16:9, 9:16, and 1:1.
 - [ ] **P3-45** — Preset application is undoable and emits a geometry event.
 
-## 3.5 UI shell (`web/css/studio.css`, `web/src/ui.ts`)
+## 3.5 UI shell (`web/css/studio.css`, `web/js/ui.js`)
 
 - [ ] **P3-46** — Desktop layout: top toolbar / media-layer panel / main canvas / controls / timeline / status.
 - [ ] **P3-47** — Mobile layout: top bar → canvas → layer list → controls → timeline → status; usable in portrait **and** landscape.
@@ -675,7 +676,7 @@ Absolute zero-stutter/zero-latency cannot be guaranteed on every device and code
 
 **Goal:** camera enumeration, platform camera policies, constraint fallback ladder, graceful failure, separate camera recordings.
 
-- [ ] **P4-01** — `web/src/camera.ts`: `enumerateDevices()` → videoinput list with labels (handle label-before-permission privacy case).
+- [ ] **P4-01** — `web/js/camera.js`: `enumerateDevices()` → videoinput list with labels (handle label-before-permission privacy case).
 - [ ] **P4-02** — Device-change listener (`devicechange`) to refresh the camera list live.
 - [ ] **P4-03** — Platform detection: Android/Termux vs Windows vs other.
 - [ ] **P4-04** — **Android policy: hard cap of 2 simultaneous camera sources.** Show an explicit, honest message when a 3rd is requested.
@@ -705,7 +706,7 @@ Absolute zero-stutter/zero-latency cannot be guaranteed on every device and code
 
 **Goal:** per-layer Web Audio mixer with independent volume/mute, synchronized to the master clock.
 
-- [ ] **P5-01** — `web/src/audio.ts`: single shared `AudioContext` for the app.
+- [ ] **P5-01** — `web/js/audio.js`: single shared `AudioContext` for the app.
 - [ ] **P5-02** — `AudioContext` resume on first user gesture (autoplay policy).
 - [ ] **P5-03** — `MediaElementAudioSourceNode` created **once per media element** and cached.
 - [ ] **P5-04** — Per-layer `GainNode` → master mix bus.
@@ -731,7 +732,7 @@ Absolute zero-stutter/zero-latency cannot be guaranteed on every device and code
 
 **Goal:** monotonic master clock, a complete event model, and durable project state with crash recovery.
 
-## 6.1 Master clock & events (`web/src/timeline.ts`)
+## 6.1 Master clock & events (`web/js/timeline.js`)
 
 - [ ] **P6-01** — Master clock built on `performance.now()` (monotonic) — never wall-clock, never frame numbers.
 - [ ] **P6-02** — Event schema: `{ layerId, action, wallMs, mediaTime, payload? }`.
@@ -758,7 +759,7 @@ Absolute zero-stutter/zero-latency cannot be guaranteed on every device and code
 - [ ] **P6-20** — Project load validates schema version and runs migrations (or refuses cleanly).
 - [ ] **P6-21** — Recovery on boot: reopen last project, restore safe state, never delete originals.
 - [ ] **P6-22** — Source-relink flow: if a media file moved, prompt to relink instead of silently dropping the layer.
-- [ ] **P6-23** — `web/src/api.ts` project endpoints + offline-friendly error states.
+- [ ] **P6-23** — `web/js/api.js` project endpoints + offline-friendly error states.
 - [ ] **P6-24** — Export settings stored in `project.export` and restored on reload.
 
 ## 6.x Exit criteria — Phase 6
@@ -938,7 +939,7 @@ Absolute zero-stutter/zero-latency cannot be guaranteed on every device and code
 
 - [ ] **P10-20** — Path traversal attempts rejected on every filesystem-facing endpoint.
 - [ ] **P10-21** — Filename sanitization fuzz test.
-- [ ] **P10-22** — No `shell=True` / no string-built commands anywhere, and no `.js` source files under `web/src/` (TypeScript + security audit).
+- [ ] **P10-22** — No `shell=True` / no string-built commands anywhere, zero Node.js/npm dependencies, and clean native ES module architecture.
 - [ ] **P10-23** — Originals-immutable audit: run the full suite and diff source hashes.
 - [ ] **P10-24** — Temp-file lifetime verification after success, failure, and cancellation.
 - [ ] **P10-25** — Offline verification: airplane mode, full workflow still works (GR-19).
@@ -986,20 +987,18 @@ Absolute zero-stutter/zero-latency cannot be guaranteed on every device and code
 - [ ] `app/core/recovery.py`
 - [ ] `web/index.html`
 - [ ] `web/css/studio.css`
-- [ ] `web/src/app.ts` (TypeScript)
-- [ ] `web/src/api.ts` (TypeScript)
-- [ ] `web/src/compositor.ts` (TypeScript)
-- [ ] `web/src/layers.ts` (TypeScript)
-- [ ] `web/src/pip-editor.ts` (TypeScript)
-- [ ] `web/src/camera.ts` (TypeScript)
-- [ ] `web/src/media.ts` (TypeScript)
-- [ ] `web/src/audio.ts` (TypeScript)
-- [ ] `web/src/recorder.ts` (TypeScript)
-- [ ] `web/src/timeline.ts` (TypeScript)
-- [ ] `web/src/performance.ts` (TypeScript)
-- [ ] `web/src/ui.ts` (TypeScript)
-- [ ] `tsconfig.json` (strict TypeScript)
-- [ ] `package.json` (build / watch / typecheck scripts)
+- [ ] `web/js/app.js` (Vanilla JS / ES Modules)
+- [ ] `web/js/api.js` (Vanilla JS / ES Modules)
+- [ ] `web/js/compositor.js` (Vanilla JS / ES Modules)
+- [ ] `web/js/layers.js` (Vanilla JS / ES Modules)
+- [ ] `web/js/pip-editor.js` (Vanilla JS / ES Modules)
+- [ ] `web/js/camera.js` (Vanilla JS / ES Modules)
+- [ ] `web/js/media.js` (Vanilla JS / ES Modules)
+- [ ] `web/js/audio.js` (Vanilla JS / ES Modules)
+- [ ] `web/js/recorder.js` (Vanilla JS / ES Modules)
+- [ ] `web/js/timeline.js` (Vanilla JS / ES Modules)
+- [ ] `web/js/performance.js` (Vanilla JS / ES Modules)
+- [ ] `web/js/ui.js` (Vanilla JS / ES Modules)
 - [ ] `scripts/start_windows.bat`
 - [ ] `scripts/start_termux.sh`
 - [ ] `scripts/diagnostics.py`
@@ -1036,7 +1035,7 @@ Absolute zero-stutter/zero-latency cannot be guaranteed on every device and code
 - [ ] **AC-19** — Application works fully offline after dependencies are installed.
 - [ ] **AC-20** — Windows and Termux startup scripts work.
 - [ ] **AC-21** — No PythonAnywhere dependency exists.
-- [ ] **AC-22** — All frontend source is TypeScript; no plain JavaScript source files ship.
+- [ ] **AC-22** — All frontend source is native modern JavaScript (ES Modules); zero Node.js/npm dependencies required.
 
 # Appendix C — Non-negotiable rules sign-off
 
@@ -1044,7 +1043,7 @@ Absolute zero-stutter/zero-latency cannot be guaranteed on every device and code
 - [ ] **NN-02** — FFmpeg is the authoritative final media engine.
 - [ ] **NN-03** — Python orchestrates; it does not process every frame.
 - [ ] **NN-04** — Browser APIs handle live camera/preview work.
-- [ ] **NN-05** — No React/Electron/large framework in v1; all frontend code is TypeScript (no plain JavaScript sources).
+- [ ] **NN-05** — No React/Electron/large framework in v1; zero Node.js/npm dependencies; all frontend code is native modern JavaScript (ES Modules).
 - [ ] **NN-06** — GStreamer is optional, not mandatory.
 - [ ] **NN-07** — Original media is immutable.
 - [ ] **NN-08** — Every independent layer has independent state.
@@ -1073,11 +1072,11 @@ Absolute zero-stutter/zero-latency cannot be guaranteed on every device and code
 | R-08 | Browser autoplay/permission policies block audio | P5-02, P4-09 | open |
 | R-09 | VFR sources desync final render | P2-03, P2-16, P8-16, P10-04 | open |
 | R-10 | Memory pressure on low-RAM Android | P7-06, P9-08, P10-14 | open |
-| R-11 | TypeScript build drift / stale bundle served | P1-08, P1-35, P1-36, P10-26 | open |
+| R-11 | Browser ES module caching / compatibility | P1-08, P1-35, P1-36, P10-26 | open |
 
 # Appendix E — Definition of Done (applies to every task)
 
-- [ ] Code written and follows the matching Part I specification section; frontend code is TypeScript (no `.js` source files) and type-checks cleanly.
+- [ ] Code written and follows the matching Part I specification section; frontend code is clean modern JavaScript (ES Modules) with zero npm build step.
 - [ ] No new cloud/network dependency introduced.
 - [ ] Errors are handled with a bounded, user-visible fallback (or an explicit failure message).
 - [ ] No original media touched — sources remain byte-identical.
