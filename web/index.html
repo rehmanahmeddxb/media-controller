@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <title>Ahmed Reaction Studio</title>
+  <link rel="stylesheet" href="/web/css/studio.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎬</text></svg>">
+</head>
+<body>
+  <div id="app" class="app">
+
+    <!-- ============================ TOP TOOLBAR ============================ -->
+    <header class="toolbar" id="toolbar">
+      <div class="brand">🎬 <span>Ahmed Reaction Studio</span><em class="local-badge" title="100% local — no cloud">LOCAL</em></div>
+      <input id="project-name" class="project-name" type="text" value="Untitled Project"
+             spellcheck="false" aria-label="Project name">
+      <div class="toolbar-group">
+        <label class="select-wrap" title="Canvas aspect ratio">
+          <span>Aspect</span>
+          <select id="aspect-select">
+            <option value="16:9" selected>16:9</option>
+            <option value="9:16">9:16</option>
+            <option value="1:1">1:1</option>
+          </select>
+        </label>
+        <button id="btn-play-all" class="btn" title="Play every layer (explicit action)">▶ All</button>
+        <button id="btn-pause-all" class="btn" title="Pause every layer (explicit action)">⏸ All</button>
+        <button id="btn-reset-all" class="btn" title="Reset every layer to its start">⟲ All</button>
+      </div>
+      <div class="toolbar-spacer"></div>
+      <div class="toolbar-group">
+        <button id="btn-record" class="btn btn-record" title="Record a take (composite + cameras + timeline)">● Record</button>
+        <button id="btn-export" class="btn btn-primary" title="Export final video with FFmpeg">⬇ Export</button>
+        <button id="btn-jobs" class="btn" title="Export jobs">Jobs</button>
+        <button id="btn-diag" class="btn" title="Diagnostics">🩺</button>
+        <button id="btn-help" class="btn" title="Help & troubleshooting">?</button>
+      </div>
+    </header>
+
+    <main class="main">
+      <!-- ========================= LEFT: MEDIA / LAYERS ========================= -->
+      <aside class="panel panel-left" id="panel-left">
+        <div class="panel-section">
+          <div class="panel-title">＋ Add Media</div>
+          <div class="add-buttons">
+            <button class="btn add-btn" id="add-local-video">🎞 Local Video</button>
+            <button class="btn add-btn" id="add-image">🖼 Image</button>
+            <button class="btn add-btn" id="add-audio">🎵 Audio</button>
+            <button class="btn add-btn" id="add-camera">📷 Camera</button>
+          </div>
+          <input type="file" id="file-input" multiple accept="video/*,audio/*,image/*" hidden>
+          <input type="file" id="image-input" multiple accept="image/*" hidden>
+          <input type="file" id="audio-input" multiple accept="audio/*" hidden>
+        </div>
+        <div class="panel-section grow">
+          <div class="panel-title row">
+            <span>Layers</span>
+            <span class="hint" id="layer-count">0</span>
+          </div>
+          <div class="layer-list" id="layer-list" aria-label="Layer stack (top row = front layer)"></div>
+        </div>
+      </aside>
+
+      <!-- ============================= CENTER: CANVAS ============================= -->
+      <section class="stage" id="stage">
+        <div class="preset-bar" id="preset-bar">
+          <button class="chip" data-preset="top-left">top-left</button>
+          <button class="chip" data-preset="top-center">top-center</button>
+          <button class="chip" data-preset="top-right">top-right</button>
+          <button class="chip" data-preset="center-left">center-left</button>
+          <button class="chip" data-preset="center">center</button>
+          <button class="chip" data-preset="center-right">center-right</button>
+          <button class="chip" data-preset="bottom-left">bottom-left</button>
+          <button class="chip" data-preset="bottom-center">bottom-center</button>
+          <button class="chip" data-preset="bottom-right">bottom-right</button>
+          <span class="chip-sep"></span>
+          <button class="chip" data-preset="50/50">50/50</button>
+          <button class="chip" data-preset="70/30">70/30</button>
+          <button class="chip" data-preset="quarter-screen">quarter</button>
+          <button class="chip" data-preset="full-screen">full</button>
+          <button class="chip" data-preset="custom">custom</button>
+        </div>
+        <div class="canvas-wrap" id="canvas-wrap">
+          <canvas id="studio-canvas" aria-label="Composition canvas"></canvas>
+          <div class="snap-guides" id="snap-guides" hidden>
+            <div class="guide guide-v" id="guide-v"></div>
+            <div class="guide guide-h" id="guide-h"></div>
+          </div>
+          <div class="canvas-empty" id="canvas-empty">
+            <div class="empty-icon">🎬</div>
+            <p>Add a local video or a camera to begin.<br>
+               <small>Everything stays on this device — nothing is uploaded.</small></p>
+          </div>
+          <div class="countdown" id="countdown" hidden><span id="countdown-num">3</span></div>
+          <div class="rec-indicator" id="rec-indicator" hidden>● REC <span id="rec-timer">00:00</span></div>
+        </div>
+        <!-- timeline -->
+        <div class="timeline-panel" id="timeline-panel">
+          <div class="timeline-head">
+            <span class="tl-clock" id="tl-clock">00:00.0</span>
+            <input type="range" id="tl-scrub" min="0" max="1000" value="0" class="tl-scrub"
+                   aria-label="Timeline scrubber">
+            <span class="tl-events-count" id="tl-events-count">0 events</span>
+          </div>
+          <div class="tl-bands" id="tl-bands"></div>
+          <div class="tl-eventlist" id="tl-eventlist" tabindex="0"></div>
+        </div>
+      </section>
+
+      <!-- ============================ RIGHT: CONTROLS ============================ -->
+      <aside class="panel panel-right" id="panel-right">
+        <div class="panel-title">Layer Controls</div>
+        <div id="layer-controls" class="layer-controls">
+          <p class="muted" id="no-selection">Select a layer to edit its properties.</p>
+          <div id="layer-controls-body" hidden>
+            <label class="field"><span>Name</span><input id="lc-name" type="text" spellcheck="false"></label>
+            <div class="field-grid">
+              <label class="field"><span>Fit</span>
+                <select id="lc-fit">
+                  <option value="contain">contain</option>
+                  <option value="cover">cover</option>
+                  <option value="stretch">stretch</option>
+                </select>
+              </label>
+              <label class="field"><span>Source</span>
+                <select id="lc-source"></select>
+              </label>
+            </div>
+            <label class="check"><input type="checkbox" id="lc-aspect-lock"> Aspect lock</label>
+            <label class="check"><input type="checkbox" id="lc-mirror" title="Mirror horizontally (front cameras)"> Mirror</label>
+            <div class="field"><span>Volume</span>
+              <div class="slider-row">
+                <input type="range" id="lc-volume" min="0" max="1" step="0.01" value="1">
+                <button class="btn tiny" id="lc-mute" title="Mute">🔇</button>
+              </div>
+            </div>
+            <div class="field-grid geo-grid">
+              <label class="field"><span>X</span><input id="lc-x" type="number" min="0" max="1" step="0.01"></label>
+              <label class="field"><span>Y</span><input id="lc-y" type="number" min="0" max="1" step="0.01"></label>
+              <label class="field"><span>W</span><input id="lc-w" type="number" min="0.01" max="1" step="0.01"></label>
+              <label class="field"><span>H</span><input id="lc-h" type="number" min="0.01" max="1" step="0.01"></label>
+            </div>
+            <div class="field"><span>Playback</span>
+              <div class="btn-row">
+                <button class="btn tiny" id="lc-play">▶</button>
+                <button class="btn tiny" id="lc-pause">⏸</button>
+                <button class="btn tiny" id="lc-seek-back" title="Back 5s">⏪</button>
+                <button class="btn tiny" id="lc-seek-fwd" title="Forward 5s">⏩</button>
+                <span class="lc-time muted" id="lc-time">0.0s</span>
+              </div>
+            </div>
+            <div class="field"><span>Media info</span>
+              <div class="media-card" id="lc-media-card"><em>—</em></div>
+            </div>
+            <div class="btn-row danger-row">
+              <button class="btn tiny" id="lc-duplicate">⧉ Duplicate</button>
+              <button class="btn tiny btn-danger" id="lc-delete">🗑 Delete</button>
+            </div>
+            <p class="kbd-hint muted">Arrows: move · Shift+Arrows: resize · Del: remove</p>
+          </div>
+        </div>
+
+        <div class="panel-title">Health</div>
+        <div class="health-strip" id="health-strip">
+          <div class="health-row"><span>FPS</span><b id="h-fps">—</b></div>
+          <div class="health-row"><span>Target</span><b id="h-target">—</b></div>
+          <div class="health-row"><span>Dropped</span><b id="h-dropped">—</b></div>
+          <div class="health-row"><span>A/V drift</span><b id="h-drift">—</b></div>
+          <div class="health-row"><span>Render</span><b id="h-render">—</b></div>
+          <div class="health-row"><span>Mode</span><b id="h-mode">—</b></div>
+        </div>
+      </aside>
+    </main>
+
+    <!-- ============================ STATUS BAR ============================ -->
+    <footer class="statusbar" id="statusbar">
+      <span class="status-chip" id="st-server">● server</span>
+      <span class="status-chip" id="st-ffmpeg">● ffmpeg</span>
+      <span class="status-chip" id="st-storage">● storage</span>
+      <span class="status-chip" id="st-health">● health</span>
+      <span class="statusbar-msg" id="st-message">Ready.</span>
+      <span class="statusbar-right" id="st-project">no project</span>
+    </footer>
+
+    <!-- ============================ DIALOGS ============================ -->
+    <div class="dialog-backdrop" id="dlg-backdrop" hidden>
+      <div class="dialog" role="dialog" aria-modal="true" id="dlg"></div>
+    </div>
+    <div class="toasts" id="toasts" aria-live="polite"></div>
+  </div>
+
+  <script type="module" src="/web/js/app.js"></script>
+</body>
+</html>
