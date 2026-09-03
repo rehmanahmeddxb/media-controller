@@ -33,7 +33,7 @@ source .venv/bin/activate
 
 echo "Installing Python dependencies (first run only)…"
 pip install --quiet --upgrade pip
-pip install --quiet -r requirements.txt
+pip install --quiet --only-binary :all: -r requirements.txt
 
 # ---- config ------------------------------------------------------------
 [ -f config.json ] || cp config.example.json config.json
