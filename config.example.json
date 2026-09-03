@@ -1,0 +1,71 @@
+{
+  "server": {
+    "host": "0.0.0.0",
+    "port": 8642
+  },
+  "storage": {
+    "root": "storage",
+    "projects_dir": "projects",
+    "proxies_dir": "proxies",
+    "recordings_dir": "recordings",
+    "exports_dir": "exports",
+    "temp_dir": "temp",
+    "logs_dir": "logs"
+  },
+  "logging": {
+    "level": "INFO",
+    "max_bytes": 5242880,
+    "backups": 3
+  },
+  "media": {
+    "max_upload_bytes": 2147483648,
+    "probe_cache": true,
+    "proxy_ladder": [1080, 720, 480],
+    "device_hints": {
+      "windows": { "max_preview_pixels": 2073600, "max_preview_fps": 60 },
+      "termux": { "max_preview_pixels": 921600, "max_preview_fps": 30 }
+    },
+    "proxy_thresholds": {
+      "heavy_pixels": 2300000,
+      "heavy_bitrate_kbps": 30000,
+      "heavy_codecs": ["hevc", "av1", "prores", "vp9"],
+      "hdr_tonemap": true,
+      "vfr_normalize": true
+    }
+  },
+  "cameras": {
+    "android_max_sources": 2,
+    "windows_max_sources": 8,
+    "constraint_ladder": [
+      { "width": 1920, "height": 1080, "frameRate": 30 },
+      { "width": 1280, "height": 720, "frameRate": 30 },
+      { "width": 640, "height": 480, "frameRate": 30 }
+    ]
+  },
+  "recording": {
+    "countdown_seconds": 3,
+    "timeslice_ms": 1000,
+    "codec_preference": ["video/webm;codecs=vp9,opus", "video/webm;codecs=vp8,opus", "video/mp4;codecs=h264,aac", "video/webm"],
+    "video_bitrate_factor": 0.12,
+    "audio_bitrate": 128000,
+    "max_take_bytes": 10737418240
+  },
+  "export": {
+    "default_format": "mp4",
+    "default_resolution": "1080p",
+    "default_fps": 30,
+    "formats": ["mp4", "webm", "mkv", "mov"],
+    "crf_default": { "libx264": 19, "libx265": 24, "libvpx-vp9": 31 },
+    "max_attempts": 3,
+    "concurrency_heavy_jobs": 1,
+    "space_safety_factor": 1.5
+  },
+  "audio": {
+    "drift_tolerance_ms": 45,
+    "target_latency_hint": 0.05
+  },
+  "recovery": {
+    "max_attempts": 3,
+    "snapshot_keep": 5
+  }
+}

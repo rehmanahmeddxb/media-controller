@@ -1,0 +1,35 @@
+# Runtime state — never commit user media or generated files
+storage/projects/*
+storage/proxies/*
+storage/recordings/*
+storage/exports/*
+storage/temp/*
+storage/logs/*
+!storage/projects/.gitkeep
+!storage/proxies/.gitkeep
+!storage/recordings/.gitkeep
+!storage/exports/.gitkeep
+!storage/temp/.gitkeep
+!storage/logs/.gitkeep
+storage/studio.db*
+storage/last_project.json
+storage/session_dirty
+storage/recovery_attempts
+storage/ffmpeg_caps.json
+
+# Local configuration (copy from config.example.json)
+config.json
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+
+# OS / editor noise
+Thumbs.db
+.DS_Store
+*.swp
